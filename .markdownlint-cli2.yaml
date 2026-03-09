@@ -1,0 +1,10 @@
+config:
+  line-length: false
+  no-duplicate-heading:
+    siblings_only: true
+  single-title:
+    front_matter_title: ""
+
+fix: true
+
+gitignore: true

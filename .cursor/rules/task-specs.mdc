@@ -1,0 +1,40 @@
+---
+description: Task spec structure for implementation-oriented task files
+globs: tasks/TASK-*.md
+alwaysApply: false
+---
+
+# Task Specs
+
+- Keep the task document implementation-oriented. Use it to translate `specs/` into concrete engineering work, not to expand product scope or introduce speculative future features.
+
+- Preserve the task identity across filename, frontmatter, and heading:
+  - Filename: `TASK-<number>-<slug>.md`
+  - Frontmatter keys: `title`, `source`, `depends_on`
+  - H1: `# TASK-<number> - <title>`
+
+- Use `source` to point to the originating `specs/*.md` file. Use `depends_on` for stable task ids only, with `[]` when there is no dependency.
+
+- Required sections:
+  - `## Goal`
+  - `## Implementation steps`
+  - `## Testing`
+  - `## Done when`
+
+- Optional sections are allowed when they make implementation clearer, for example:
+  - `## Suggested modules`, `## Suggested files`, or `## Suggested outputs`
+  - `## Core types`
+  - `## Rust-specific guidance`
+  - `## What not to do`
+
+- Prefer concrete, reviewable guidance. Name real modules, types, commands, files, and constraints in backticks. Make blockers, non-goals, and dependency boundaries explicit.
+
+- `Testing` must describe real validation work. `Done when` must describe observable completion criteria, not generic intent.
+
+- Prefer:
+  - “Implement `layer export` in `src/app/layer_service.rs` and add manifest round-trip tests.”
+  - “State that `Runner` owns execution policy and must not leak into `src/domain/`.”
+
+- Avoid:
+  - “Improve the layer system.”
+  - “Maybe support OCI or plugins later.”

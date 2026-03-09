@@ -1,0 +1,11 @@
+{
+  "name": "loom-task-tree",
+  "private": true,
+  "scripts": {
+    "task-tree": "node ./task-tree-server.mjs",
+    "task-tree:open": "node ./task-tree-server.mjs --open"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}

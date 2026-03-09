@@ -1,0 +1,2312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loom Task Atlas</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-0: #090b10;
+        --bg-1: #0f131b;
+        --bg-2: #151b24;
+        --ink-0: #f6f2ea;
+        --ink-1: rgba(246, 242, 234, 0.78);
+        --ink-2: rgba(246, 242, 234, 0.56);
+        --line-soft: rgba(246, 242, 234, 0.08);
+        --line-strong: rgba(246, 242, 234, 0.16);
+        --shadow-1: 0 24px 80px rgba(0, 0, 0, 0.38);
+        --shadow-2: 0 14px 36px rgba(0, 0, 0, 0.28);
+        --phase-0: #79c9ff;
+        --phase-1: #6ce0c6;
+        --phase-2: #f5c96b;
+        --phase-3: #fd9966;
+        --phase-4: #df8dff;
+        --phase-5: #ff6f91;
+        --phase-6: #bce47f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        background:
+          radial-gradient(
+            circle at 12% 18%,
+            rgba(121, 201, 255, 0.14),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 84% 14%,
+            rgba(245, 201, 107, 0.12),
+            transparent 26%
+          ),
+          radial-gradient(
+            circle at 82% 72%,
+            rgba(223, 141, 255, 0.08),
+            transparent 24%
+          ),
+          linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+        color: var(--ink-0);
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(
+          rgba(246, 242, 234, 0.08) 0.8px,
+          transparent 0.8px
+        );
+        background-size: 22px 22px;
+        mask-image: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.45),
+          rgba(0, 0, 0, 0.12)
+        );
+        pointer-events: none;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .page-shell {
+        position: relative;
+        padding: 28px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 28px 30px 32px;
+        border: 1px solid var(--line-soft);
+        border-radius: 28px;
+        background:
+          linear-gradient(
+            140deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.01)
+          ),
+          rgba(8, 11, 16, 0.72);
+        box-shadow: var(--shadow-1);
+        backdrop-filter: blur(18px);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(130deg, rgba(121, 201, 255, 0.12), transparent 42%),
+          linear-gradient(320deg, rgba(245, 201, 107, 0.1), transparent 38%);
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
+        gap: 28px;
+        align-items: end;
+      }
+
+      .hero-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding: 7px 12px;
+        border: 1px solid rgba(121, 201, 255, 0.2);
+        border-radius: 999px;
+        color: var(--ink-1);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+
+      .hero-kicker::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, var(--phase-0), #f6f2ea);
+        box-shadow: 0 0 18px rgba(121, 201, 255, 0.7);
+      }
+
+      .hero h1 {
+        margin: 0 0 16px;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: clamp(3rem, 7vw, 5.35rem);
+        font-weight: 700;
+        letter-spacing: -0.05em;
+        line-height: 0.92;
+      }
+
+      .hero-copy {
+        max-width: 64ch;
+        margin: 0;
+        color: var(--ink-1);
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .hero-notes {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border: 1px solid var(--line-soft);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .hero-note {
+        display: grid;
+        gap: 6px;
+      }
+
+      .hero-note-label {
+        color: var(--ink-2);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .hero-note strong {
+        font-weight: 600;
+        color: var(--ink-0);
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 24px;
+        align-items: start;
+      }
+
+      .canvas-panel,
+      .details-panel {
+        border: 1px solid var(--line-soft);
+        border-radius: 28px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.04),
+            rgba(255, 255, 255, 0.015)
+          ),
+          rgba(8, 11, 16, 0.78);
+        box-shadow: var(--shadow-2);
+        backdrop-filter: blur(18px);
+      }
+
+      .canvas-panel {
+        padding: 20px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .toolbar {
+        display: grid;
+        gap: 14px;
+      }
+
+      .toolbar-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .toolbar-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .search-shell {
+        min-width: min(100%, 320px);
+        flex: 1 1 280px;
+        position: relative;
+      }
+
+      .search-shell input {
+        width: 100%;
+        padding: 14px 16px 14px 44px;
+        border: 1px solid var(--line-soft);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ink-0);
+        outline: none;
+      }
+
+      .search-shell input:focus {
+        border-color: rgba(121, 201, 255, 0.4);
+        box-shadow: 0 0 0 4px rgba(121, 201, 255, 0.08);
+      }
+
+      .search-shell::before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--ink-2);
+        border-radius: 50%;
+        transform: translateY(-50%);
+      }
+
+      .search-shell::after {
+        content: "";
+        position: absolute;
+        left: 30px;
+        top: calc(50% + 6px);
+        width: 8px;
+        height: 2px;
+        background: var(--ink-2);
+        transform: rotate(45deg);
+        transform-origin: left center;
+      }
+
+      .chip,
+      .ghost-button,
+      .detail-link,
+      .sequence-button {
+        appearance: none;
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ink-1);
+        cursor: pointer;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease,
+          color 180ms ease,
+          opacity 180ms ease;
+      }
+
+      .chip:hover,
+      .ghost-button:hover,
+      .detail-link:hover,
+      .sequence-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(246, 242, 234, 0.2);
+        color: var(--ink-0);
+      }
+
+      .chip:disabled,
+      .ghost-button:disabled,
+      .detail-link:disabled,
+      .sequence-button:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .chip {
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+
+      .chip.is-active {
+        border-color: rgba(121, 201, 255, 0.34);
+        background: rgba(121, 201, 255, 0.12);
+        color: var(--ink-0);
+      }
+
+      .ghost-button {
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+
+      .ghost-button.is-active {
+        border-color: rgba(245, 201, 107, 0.36);
+        background: rgba(245, 201, 107, 0.12);
+        color: var(--ink-0);
+      }
+
+      .toolbar-caption {
+        color: var(--ink-2);
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .graph-shell {
+        overflow: auto;
+        padding: 6px;
+        border-radius: 24px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.015)
+          ),
+          rgba(255, 255, 255, 0.015);
+      }
+
+      .graph-board {
+        position: relative;
+        min-height: 980px;
+      }
+
+      .board-message {
+        position: absolute;
+        inset: 22px;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+      }
+
+      .board-message-card {
+        width: min(560px, calc(100% - 24px));
+        padding: 24px;
+        border: 1px solid var(--line-soft);
+        border-radius: 24px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.02)
+          ),
+          rgba(8, 11, 16, 0.86);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+        pointer-events: auto;
+      }
+
+      .board-message-kicker {
+        margin-bottom: 10px;
+        color: var(--ink-2);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .board-message-title {
+        margin: 0 0 12px;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 30px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      .board-message-copy {
+        margin: 0;
+        color: var(--ink-1);
+        font-size: 14px;
+        line-height: 1.72;
+      }
+
+      .board-message-copy + .board-message-copy {
+        margin-top: 10px;
+      }
+
+      .board-message-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .phase-lane {
+        position: absolute;
+        top: 16px;
+        bottom: 16px;
+        width: 280px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 28px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.04),
+            rgba(255, 255, 255, 0.01)
+          ),
+          rgba(255, 255, 255, 0.02);
+      }
+
+      .phase-lane::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 36%),
+          linear-gradient(0deg, rgba(255, 255, 255, 0.04), transparent 28%);
+        pointer-events: none;
+      }
+
+      .phase-lane-header {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        right: 18px;
+        display: grid;
+        gap: 10px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        background: rgba(7, 10, 14, 0.56);
+      }
+
+      .phase-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ink-1);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .phase-pill::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 65%, transparent);
+      }
+
+      .phase-title {
+        margin: 0;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 24px;
+        line-height: 1.05;
+      }
+
+      .phase-summary {
+        margin: 0;
+        color: var(--ink-2);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .task-card {
+        position: absolute;
+        width: 248px;
+        padding: 18px 18px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.06),
+            rgba(255, 255, 255, 0.022)
+          ),
+          rgba(8, 11, 16, 0.78);
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22);
+        transition:
+          transform 220ms ease,
+          border-color 220ms ease,
+          box-shadow 220ms ease,
+          opacity 220ms ease,
+          filter 220ms ease;
+      }
+
+      .task-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--accent) 16%, transparent),
+          transparent 42%
+        );
+        pointer-events: none;
+      }
+
+      .task-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.16);
+      }
+
+      .task-card:focus-visible {
+        outline: 2px solid rgba(121, 201, 255, 0.5);
+        outline-offset: 4px;
+      }
+
+      .task-card.is-dim {
+        opacity: 0.18;
+        filter: saturate(0.45);
+      }
+
+      .task-card.is-selected {
+        border-color: color-mix(in srgb, var(--accent) 72%, white 10%);
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+          0 24px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .task-card.is-ancestor {
+        border-color: rgba(121, 201, 255, 0.4);
+        box-shadow: 0 18px 36px rgba(75, 140, 194, 0.18);
+      }
+
+      .task-card.is-descendant {
+        border-color: rgba(245, 201, 107, 0.42);
+        box-shadow: 0 18px 36px rgba(176, 118, 60, 0.2);
+      }
+
+      .task-card.is-critical {
+        box-shadow:
+          inset 0 0 0 1px rgba(245, 201, 107, 0.32),
+          0 18px 36px rgba(176, 118, 60, 0.14);
+      }
+
+      .task-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .task-id {
+        color: var(--ink-1);
+        font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+      }
+
+      .task-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ink-0);
+        font-family: "SFMono-Regular", "Menlo", "Monaco", monospace;
+        font-size: 12px;
+      }
+
+      .task-title {
+        margin: 0 0 14px;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 23px;
+        font-weight: 700;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+      }
+
+      .task-phase {
+        margin: 0 0 12px;
+        color: var(--ink-2);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .task-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .mini-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--ink-2);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .mini-chip strong {
+        color: var(--ink-0);
+        font-weight: 600;
+      }
+
+      .mini-chip.is-milestone {
+        background: rgba(245, 201, 107, 0.12);
+        color: #f7dda4;
+      }
+
+      .edge-layer {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+        pointer-events: none;
+      }
+
+      .edge-path {
+        fill: none;
+        stroke: rgba(246, 242, 234, 0.11);
+        stroke-width: 2;
+        stroke-linecap: round;
+        transition:
+          stroke 180ms ease,
+          stroke-width 180ms ease,
+          opacity 180ms ease;
+      }
+
+      .edge-path.is-dim {
+        opacity: 0.1;
+      }
+
+      .edge-path.is-upstream {
+        stroke: rgba(121, 201, 255, 0.78);
+        stroke-width: 2.6;
+      }
+
+      .edge-path.is-downstream {
+        stroke: rgba(245, 201, 107, 0.82);
+        stroke-width: 2.8;
+      }
+
+      .edge-path.is-related {
+        stroke: rgba(246, 242, 234, 0.42);
+      }
+
+      .edge-path.is-critical {
+        stroke: rgba(245, 201, 107, 0.58);
+        stroke-width: 2.4;
+      }
+
+      .details-panel {
+        position: sticky;
+        top: 28px;
+        padding: 22px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .details-block {
+        display: grid;
+        gap: 12px;
+      }
+
+      .details-kicker {
+        color: var(--ink-2);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .details-title {
+        margin: 0;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 34px;
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+      }
+
+      .details-copy {
+        margin: 0;
+        color: var(--ink-1);
+        line-height: 1.72;
+        font-size: 14px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 14px;
+        border: 1px solid var(--line-soft);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .stat-label {
+        color: var(--ink-2);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        margin-top: 8px;
+        color: var(--ink-0);
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .detail-links,
+      .sequence-row,
+      .phase-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .detail-link,
+      .sequence-button {
+        padding: 8px 12px;
+        color: var(--ink-1);
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .phase-card {
+        flex: 1 1 140px;
+        min-width: 0;
+        padding: 14px;
+        border: 1px solid var(--line-soft);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .phase-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .phase-card span {
+        color: var(--ink-2);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--ink-2);
+        font-size: 12px;
+      }
+
+      .legend-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .footer-note {
+        color: var(--ink-2);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 1280px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .details-panel {
+          position: static;
+        }
+      }
+
+      @media (max-width: 960px) {
+        .page-shell {
+          padding: 18px;
+        }
+
+        .hero,
+        .canvas-panel,
+        .details-panel {
+          border-radius: 22px;
+        }
+
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero h1 {
+          font-size: clamp(2.7rem, 14vw, 4.25rem);
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-kicker">Loom planning surface</div>
+            <h1>Task Atlas</h1>
+            <p class="hero-copy">
+              A visual map of the current Loom build order. The data comes from
+              the linear task list in
+              <code>specs/README.md</code>, but the rendering makes the
+              dependency graph easier to read than a plain table. Click any task
+              card to trace what it needs, what it unlocks, and where it sits in
+              the roadmap.
+            </p>
+          </div>
+          <div class="hero-notes">
+            <div class="hero-note">
+              <span class="hero-note-label">Reading hint</span>
+              <strong>This is a dependency graph, not a strict tree.</strong>
+              <span class="hero-copy">
+                Several tasks depend on multiple predecessors, so the page
+                emphasizes lineage and phase boundaries at the same time.
+              </span>
+            </div>
+            <div class="hero-note">
+              <span class="hero-note-label">First usable milestone</span>
+              <strong>Phase 1 / TASK-10</strong>
+              <span class="hero-copy">
+                The first daily-usable macOS MVP is expected after project
+                registration, workspace creation, execution, diff capture, and
+                cleanup are wired end to end.
+              </span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <div class="canvas-panel">
+          <div class="toolbar">
+            <div class="toolbar-row">
+              <div class="toolbar-group" style="flex: 1 1 560px">
+                <label class="search-shell">
+                  <span class="sr-only">Search tasks</span>
+                  <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search by task id or title"
+                  />
+                </label>
+              </div>
+              <div class="toolbar-group">
+                <button
+                  id="criticalToggle"
+                  class="ghost-button"
+                  type="button"
+                  aria-pressed="false"
+                >
+                  Highlight critical path
+                </button>
+                <button id="resetButton" class="ghost-button" type="button">
+                  Reset view
+                </button>
+              </div>
+            </div>
+            <div class="toolbar-row">
+              <div class="toolbar-group" id="phaseFilters"></div>
+              <div class="toolbar-caption">
+                Tip: click a card to isolate its prerequisites and unlocks
+              </div>
+            </div>
+          </div>
+
+          <div class="graph-shell" id="graphShell">
+            <div class="graph-board" id="graphBoard">
+              <svg class="edge-layer" id="edgeLayer" aria-hidden="true"></svg>
+              <div id="phaseLayer"></div>
+              <div id="taskLayer"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="details-panel" id="detailsPanel"></aside>
+      </section>
+    </div>
+
+    <script>
+      const phaseAccentMap = new Map([
+        [0, "var(--phase-0)"],
+        [1, "var(--phase-1)"],
+        [2, "var(--phase-2)"],
+        [3, "var(--phase-3)"],
+        [4, "var(--phase-4)"],
+        [5, "var(--phase-5)"],
+        [6, "var(--phase-6)"],
+      ]);
+
+      let phases = [];
+      let tasks = [];
+      let taskMap = new Map();
+      let dependentsMap = new Map();
+      let phaseTaskMap = new Map();
+      let phaseEndpointIds = [];
+      let phaseEndpointSet = new Set();
+      let roots = [];
+      let sinks = [];
+      let edgeCount = 0;
+      let criticalPath = [];
+      let criticalSet = new Set();
+      let criticalEdgeSet = new Set();
+      let finalTaskId = null;
+
+      const state = {
+        search: "",
+        phaseFilter: "all",
+        selectedTaskId: null,
+        criticalOnly: false,
+      };
+
+      const layout = {
+        boardPaddingX: 42,
+        boardPaddingTop: 160,
+        columnWidth: 312,
+        laneWidth: 280,
+        rowHeight: 168,
+        cardWidth: 248,
+      };
+
+      const graphBoard = document.getElementById("graphBoard");
+      const phaseLayer = document.getElementById("phaseLayer");
+      const taskLayer = document.getElementById("taskLayer");
+      const edgeLayer = document.getElementById("edgeLayer");
+      const phaseFilters = document.getElementById("phaseFilters");
+      const searchInput = document.getElementById("searchInput");
+      const criticalToggle = document.getElementById("criticalToggle");
+      const resetButton = document.getElementById("resetButton");
+      const detailsPanel = document.getElementById("detailsPanel");
+
+      const cardElements = new Map();
+
+      function escapeHtml(value = "") {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function normalizeTaskId(value) {
+        const match = String(value)
+          .toUpperCase()
+          .match(/TASK-\d+/);
+        return match ? match[0] : "";
+      }
+
+      function stripWrappingQuotes(value = "") {
+        const trimmed = String(value).trim();
+        if (
+          (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+          (trimmed.startsWith("'") && trimmed.endsWith("'"))
+        ) {
+          return trimmed.slice(1, -1);
+        }
+        return trimmed;
+      }
+
+      function parseFrontmatter(markdown) {
+        const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+        if (!match) {
+          return {
+            metadata: {},
+            body: markdown,
+          };
+        }
+
+        const metadata = {};
+        let currentKey = null;
+
+        match[1].split(/\r?\n/).forEach((line) => {
+          if (!line.trim()) {
+            return;
+          }
+
+          const keyMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+          if (keyMatch) {
+            const [, key, rawValue] = keyMatch;
+            const value = rawValue.trim();
+
+            if (value === "") {
+              metadata[key] = [];
+              currentKey = key;
+              return;
+            }
+
+            if (value === "[]") {
+              metadata[key] = [];
+              currentKey = null;
+              return;
+            }
+
+            metadata[key] = stripWrappingQuotes(value);
+            currentKey = null;
+            return;
+          }
+
+          const listMatch = line.match(/^\s*-\s+(.+)$/);
+          if (listMatch && currentKey) {
+            if (!Array.isArray(metadata[currentKey])) {
+              metadata[currentKey] = [];
+            }
+            metadata[currentKey].push(stripWrappingQuotes(listMatch[1]));
+          }
+        });
+
+        return {
+          metadata,
+          body: markdown.slice(match[0].length),
+        };
+      }
+
+      function setControlsDisabled(disabled) {
+        searchInput.disabled = disabled;
+        criticalToggle.disabled = disabled;
+        resetButton.disabled = disabled;
+      }
+
+      function renderBoardMessage({
+        kicker,
+        title,
+        body,
+        extra = "",
+        actions = [],
+      }) {
+        graphBoard.style.width = "100%";
+        graphBoard.style.height = "720px";
+        edgeLayer.setAttribute("width", "0");
+        edgeLayer.setAttribute("height", "0");
+        edgeLayer.setAttribute("viewBox", "0 0 0 0");
+        edgeLayer.innerHTML = "";
+        taskLayer.innerHTML = "";
+
+        const actionMarkup = actions.length
+          ? `
+              <div class="board-message-actions">
+                ${actions
+                  .map(
+                    (action) => `
+                      <button
+                        type="button"
+                        class="ghost-button"
+                        data-action="${escapeHtml(action.id)}"
+                      >
+                        ${escapeHtml(action.label)}
+                      </button>
+                    `,
+                  )
+                  .join("")}
+              </div>
+            `
+          : "";
+
+        phaseLayer.innerHTML = `
+          <div class="board-message">
+            <div class="board-message-card">
+              <div class="board-message-kicker">${escapeHtml(kicker)}</div>
+              <h2 class="board-message-title">${escapeHtml(title)}</h2>
+              <p class="board-message-copy">${body}</p>
+              ${extra ? `<p class="board-message-copy">${extra}</p>` : ""}
+              ${actionMarkup}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderLoadingState() {
+        phaseFilters.innerHTML = "";
+        renderBoardMessage({
+          kicker: "Data source",
+          title: "Loading local task files",
+          body: "Reading <code>tasks/README.md</code> and <code>specs/README.md</code> for graph shape, then parsing YAML front matter from every local <code>TASK-*.md</code> file.",
+          extra:
+            "If the page is opened from <code>file://</code>, browser security may block automatic file reads. In that case, use a local HTTP server or choose the repository folder when prompted.",
+        });
+
+        detailsPanel.innerHTML = `
+          <div class="details-block">
+            <div class="details-kicker">Loading</div>
+            <h2 class="details-title">Building the graph</h2>
+            <p class="details-copy">
+              The page is parsing the Markdown source of truth instead of relying on hardcoded task metadata.
+            </p>
+          </div>
+        `;
+      }
+
+      function renderLoadError(error) {
+        const supportsDirectoryPicker =
+          typeof window.showDirectoryPicker === "function";
+        const isFileProtocol = window.location.protocol === "file:";
+        const errorCopy = isFileProtocol
+          ? "Automatic reads are blocked when the page is opened directly from the filesystem. Serve the repo over HTTP or grant folder access to let the page parse the local Markdown files."
+          : "The graph could not read one or more Markdown files. Check that the page is still inside the repo and that the expected <code>tasks</code> and <code>specs</code> files exist.";
+
+        const actions = [{ id: "retry-load", label: "Retry load" }];
+        if (supportsDirectoryPicker) {
+          actions.push({ id: "pick-folder", label: "Choose repo folder" });
+        }
+
+        renderBoardMessage({
+          kicker: "Load error",
+          title: "Unable to build the task graph",
+          body: errorCopy,
+          extra: `<strong>Details:</strong> ${escapeHtml(error.message)}`,
+          actions,
+        });
+
+        detailsPanel.innerHTML = `
+          <div class="details-block">
+            <div class="details-kicker">Load error</div>
+            <h2 class="details-title">Source files unavailable</h2>
+            <p class="details-copy">
+              ${errorCopy}
+            </p>
+            <p class="details-copy">
+              Try serving the repository with <code>cd task-tree && npm run task-tree</code>, then reopen <code>/task-tree/</code>.
+            </p>
+          </div>
+        `;
+      }
+
+      function getSectionLines(markdown, heading) {
+        const lines = markdown.split(/\r?\n/);
+        const startIndex = lines.findIndex((line) => line.trim() === heading);
+        if (startIndex === -1) {
+          return [];
+        }
+
+        const sectionLines = [];
+        for (let index = startIndex + 1; index < lines.length; index += 1) {
+          const line = lines[index];
+          if (/^##\s+/.test(line)) {
+            break;
+          }
+          sectionLines.push(line);
+        }
+        return sectionLines;
+      }
+
+      function parseInlineCodeList(lines) {
+        return lines.flatMap((line) =>
+          Array.from(line.matchAll(/`([^`]+)`/g), (match) => match[1]),
+        );
+      }
+
+      function extractFirstParagraph(markdown) {
+        const lines = markdown.split(/\r?\n/);
+        let foundHeading = false;
+        const paragraph = [];
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+
+          if (!foundHeading) {
+            if (/^#\s+/.test(trimmed)) {
+              foundHeading = true;
+            }
+            continue;
+          }
+
+          if (!trimmed) {
+            if (paragraph.length) {
+              break;
+            }
+            continue;
+          }
+
+          if (/^##\s+/.test(trimmed)) {
+            break;
+          }
+
+          paragraph.push(trimmed);
+        }
+
+        return paragraph.join(" ");
+      }
+
+      function humanizeSlug(slug) {
+        return slug
+          .replace(/\.md$/, "")
+          .replace(/^phase-\d+-/, "")
+          .split("-")
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(" ");
+      }
+
+      function parsePhaseFiles(specsReadme) {
+        return parseInlineCodeList(
+          getSectionLines(specsReadme, "## Phase files"),
+        );
+      }
+
+      function parseTaskFiles(tasksReadme) {
+        return parseInlineCodeList(
+          getSectionLines(tasksReadme, "## Task files"),
+        );
+      }
+
+      function parseSpecsTaskTable(specsReadme) {
+        return getSectionLines(specsReadme, "## Linear task list")
+          .filter((line) => line.trim().startsWith("| TASK-"))
+          .map((line, index) => {
+            const cells = line
+              .split("|")
+              .map((cell) => cell.trim())
+              .filter(Boolean);
+
+            const [id, phaseValue, title, dependsValue] = cells;
+            return {
+              id,
+              phase: Number(phaseValue),
+              title,
+              order: index + 1,
+              deps: dependsValue.match(/TASK-\d+/g) || [],
+            };
+          });
+      }
+
+      function parsePhaseDoc(file, markdown) {
+        const id = Number(file.match(/phase-(\d+)-/)?.[1]);
+        const headingMatch = markdown.match(/^#\s+Phase\s+\d+\s+-\s+(.+)$/m);
+        const title = headingMatch
+          ? headingMatch[1].trim()
+          : humanizeSlug(file);
+        const summary =
+          extractFirstParagraph(markdown) ||
+          `${title} is defined by the local phase specification.`;
+
+        return {
+          id,
+          name: `Phase ${id}`,
+          title,
+          file: `specs/${file}`,
+          accent: phaseAccentMap.get(id) || `var(--phase-${id})`,
+          summary,
+        };
+      }
+
+      function parseTaskDoc(file, markdown) {
+        const { metadata, body } = parseFrontmatter(markdown);
+        const headingMatch = body.match(/^#\s+(TASK-\d+)\s+-\s+(.+)$/m);
+        if (!headingMatch) {
+          throw new Error(`Could not parse task heading from ${file}.`);
+        }
+
+        const id = headingMatch[1].trim();
+        const title =
+          typeof metadata.title === "string" && metadata.title
+            ? metadata.title.trim()
+            : headingMatch[2].trim();
+        const sourceMatch = body.match(/^Source:\s*`?([^`\n]+)`?\s*$/m);
+        const source =
+          typeof metadata.source === "string" && metadata.source
+            ? metadata.source.trim()
+            : sourceMatch
+              ? sourceMatch[1].trim()
+              : null;
+        const hasDependsMetadata = Object.prototype.hasOwnProperty.call(
+          metadata,
+          "depends_on",
+        );
+        const dependsMatch = body.match(/^Depends on:\s*(.+)$/m);
+        const deps = hasDependsMetadata
+          ? Array.isArray(metadata.depends_on)
+            ? metadata.depends_on.map(normalizeTaskId).filter(Boolean)
+            : []
+          : dependsMatch
+            ? dependsMatch[1].match(/TASK-\d+/g) || []
+            : [];
+
+        return {
+          id,
+          number: Number(id.replace("TASK-", "")),
+          title,
+          source,
+          deps,
+          file,
+        };
+      }
+
+      async function fetchText(path) {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Unable to load ${path} (${response.status}).`);
+        }
+        return response.text();
+      }
+
+      async function readTextFromDirectory(directoryHandle, fileName) {
+        const fileHandle = await directoryHandle.getFileHandle(fileName);
+        const file = await fileHandle.getFile();
+        return file.text();
+      }
+
+      function assembleGraphData({ phaseDocs, taskDocs, phaseRows }) {
+        const rowsById = new Map(phaseRows.map((row) => [row.id, row]));
+        const docsById = new Map(taskDocs.map((doc) => [doc.id, doc]));
+        const phaseDocsById = new Map(
+          phaseDocs.map((phase) => [phase.id, phase]),
+        );
+        const phaseIds = new Set(phaseDocs.map((phase) => phase.id));
+
+        const missingFromTaskFiles = phaseRows
+          .filter((row) => !docsById.has(row.id))
+          .map((row) => row.id);
+        const missingFromSpecs = taskDocs
+          .filter((doc) => !rowsById.has(doc.id))
+          .map((doc) => doc.id);
+        const missingPhases = Array.from(
+          new Set(
+            phaseRows
+              .map((row) => row.phase)
+              .filter((phaseId) => !phaseIds.has(phaseId)),
+          ),
+        );
+
+        if (missingFromTaskFiles.length) {
+          throw new Error(
+            `Missing task files for ${missingFromTaskFiles.join(", ")}.`,
+          );
+        }
+        if (missingFromSpecs.length) {
+          throw new Error(
+            `Task docs not present in specs/README.md: ${missingFromSpecs.join(", ")}.`,
+          );
+        }
+        if (missingPhases.length) {
+          throw new Error(
+            `Missing phase docs for phase ${missingPhases.join(", ")}.`,
+          );
+        }
+
+        const mergedTasks = taskDocs
+          .map((doc) => {
+            const row = rowsById.get(doc.id);
+            if (row.title !== doc.title) {
+              console.warn(
+                `[task-tree] Title mismatch for ${doc.id}:`,
+                row.title,
+                doc.title,
+              );
+            }
+
+            if (row.deps.join(",") !== doc.deps.join(",")) {
+              console.warn(
+                `[task-tree] Dependency mismatch for ${doc.id}:`,
+                row.deps,
+                doc.deps,
+              );
+            }
+
+            const expectedSource = phaseDocsById.get(row.phase)?.file;
+            if (doc.source && expectedSource && doc.source !== expectedSource) {
+              console.warn(
+                `[task-tree] Source mismatch for ${doc.id}:`,
+                expectedSource,
+                doc.source,
+              );
+            }
+
+            return {
+              ...doc,
+              phase: row.phase,
+              order: row.order,
+            };
+          })
+          .sort(
+            (left, right) =>
+              left.order - right.order || left.number - right.number,
+          );
+
+        const mergedPhases = [...phaseDocs].sort(
+          (left, right) => left.id - right.id,
+        );
+
+        return {
+          phases: mergedPhases,
+          tasks: mergedTasks,
+        };
+      }
+
+      async function loadFromHttp() {
+        const [specsReadme, tasksReadme] = await Promise.all([
+          fetchText("../specs/README.md"),
+          fetchText("../tasks/README.md"),
+        ]);
+
+        const phaseFiles = parsePhaseFiles(specsReadme);
+        const taskFiles = parseTaskFiles(tasksReadme);
+        const phaseRows = parseSpecsTaskTable(specsReadme);
+
+        if (!phaseFiles.length) {
+          throw new Error("No phase files were found in specs/README.md.");
+        }
+        if (!taskFiles.length) {
+          throw new Error("No task files were found in tasks/README.md.");
+        }
+
+        const [phaseDocs, taskDocs] = await Promise.all([
+          Promise.all(
+            phaseFiles.map(async (file) =>
+              parsePhaseDoc(file, await fetchText(`../specs/${file}`)),
+            ),
+          ),
+          Promise.all(
+            taskFiles.map(async (file) =>
+              parseTaskDoc(file, await fetchText(`../tasks/${file}`)),
+            ),
+          ),
+        ]);
+
+        return assembleGraphData({ phaseDocs, taskDocs, phaseRows });
+      }
+
+      async function loadFromDirectoryPicker() {
+        if (typeof window.showDirectoryPicker !== "function") {
+          throw new Error("Directory picker is not supported in this browser.");
+        }
+
+        const repoHandle = await window.showDirectoryPicker({
+          id: "loom-task-tree",
+          mode: "read",
+        });
+        const tasksHandle = await repoHandle.getDirectoryHandle("tasks");
+        const specsHandle = await repoHandle.getDirectoryHandle("specs");
+
+        const [specsReadme, tasksReadme] = await Promise.all([
+          readTextFromDirectory(specsHandle, "README.md"),
+          readTextFromDirectory(tasksHandle, "README.md"),
+        ]);
+
+        const phaseFiles = parsePhaseFiles(specsReadme);
+        const taskFiles = parseTaskFiles(tasksReadme);
+        const phaseRows = parseSpecsTaskTable(specsReadme);
+
+        const [phaseDocs, taskDocs] = await Promise.all([
+          Promise.all(
+            phaseFiles.map(async (file) =>
+              parsePhaseDoc(
+                file,
+                await readTextFromDirectory(specsHandle, file),
+              ),
+            ),
+          ),
+          Promise.all(
+            taskFiles.map(async (file) =>
+              parseTaskDoc(
+                file,
+                await readTextFromDirectory(tasksHandle, file),
+              ),
+            ),
+          ),
+        ]);
+
+        return assembleGraphData({ phaseDocs, taskDocs, phaseRows });
+      }
+
+      function computeCriticalPath() {
+        if (!tasks.length) {
+          return [];
+        }
+
+        const sorted = [...tasks].sort(
+          (left, right) =>
+            left.order - right.order || left.number - right.number,
+        );
+        const distance = new Map();
+        const parent = new Map();
+
+        sorted.forEach((task) => {
+          let bestParent = null;
+          let bestDistance = 0;
+
+          task.deps.forEach((depId) => {
+            const candidate = distance.get(depId) || 0;
+            if (candidate > bestDistance) {
+              bestDistance = candidate;
+              bestParent = depId;
+            }
+          });
+
+          distance.set(task.id, bestDistance + 1);
+          parent.set(task.id, bestParent);
+        });
+
+        let endpoint = sorted[0].id;
+        sinks.forEach((id) => {
+          if ((distance.get(id) || 0) > (distance.get(endpoint) || 0)) {
+            endpoint = id;
+          }
+        });
+
+        const path = [];
+        let cursor = endpoint;
+        while (cursor) {
+          path.unshift(cursor);
+          cursor = parent.get(cursor);
+        }
+
+        return path;
+      }
+
+      function rebuildGraphState(nextPhases, nextTasks) {
+        phases = [...nextPhases].sort((left, right) => left.id - right.id);
+        tasks = [...nextTasks].sort(
+          (left, right) =>
+            left.order - right.order || left.number - right.number,
+        );
+
+        taskMap = new Map(tasks.map((task) => [task.id, task]));
+        dependentsMap = new Map(tasks.map((task) => [task.id, []]));
+        phaseTaskMap = new Map(phases.map((phase) => [phase.id, []]));
+
+        tasks.forEach((task) => {
+          if (!phaseTaskMap.has(task.phase)) {
+            phaseTaskMap.set(task.phase, []);
+          }
+          phaseTaskMap.get(task.phase).push(task);
+
+          task.deps.forEach((depId) => {
+            if (!dependentsMap.has(depId)) {
+              dependentsMap.set(depId, []);
+            }
+            dependentsMap.get(depId).push(task.id);
+          });
+        });
+
+        phaseTaskMap.forEach((list) =>
+          list.sort(
+            (left, right) =>
+              left.order - right.order || left.number - right.number,
+          ),
+        );
+
+        phaseEndpointIds = phases
+          .map((phase) => {
+            const list = phaseTaskMap.get(phase.id) || [];
+            return list.length ? list[list.length - 1].id : null;
+          })
+          .filter(Boolean);
+        phaseEndpointSet = new Set(phaseEndpointIds);
+
+        roots = tasks
+          .filter((task) => task.deps.length === 0)
+          .map((task) => task.id);
+        sinks = tasks
+          .filter((task) => (dependentsMap.get(task.id) || []).length === 0)
+          .map((task) => task.id);
+        edgeCount = tasks.reduce((sum, task) => sum + task.deps.length, 0);
+
+        criticalPath = computeCriticalPath();
+        criticalSet = new Set(criticalPath);
+        criticalEdgeSet = new Set(
+          criticalPath
+            .slice(1)
+            .map((taskId, index) => `${criticalPath[index]}->${taskId}`),
+        );
+        finalTaskId = tasks[tasks.length - 1]?.id || null;
+      }
+
+      function getPhase(task) {
+        return (
+          phases.find((phase) => phase.id === task.phase) || {
+            id: task.phase,
+            name: `Phase ${task.phase}`,
+            title: "Unknown phase",
+            accent: phaseAccentMap.get(task.phase) || "var(--phase-0)",
+            summary: "Phase metadata is unavailable.",
+          }
+        );
+      }
+
+      function getAncestors(taskId, bucket = new Set()) {
+        const task = taskMap.get(taskId);
+        if (!task) {
+          return bucket;
+        }
+
+        task.deps.forEach((depId) => {
+          if (!bucket.has(depId)) {
+            bucket.add(depId);
+            getAncestors(depId, bucket);
+          }
+        });
+        return bucket;
+      }
+
+      function getDescendants(taskId, bucket = new Set()) {
+        (dependentsMap.get(taskId) || []).forEach((depId) => {
+          if (!bucket.has(depId)) {
+            bucket.add(depId);
+            getDescendants(depId, bucket);
+          }
+        });
+        return bucket;
+      }
+
+      function getVisibleRelationshipSet() {
+        if (state.selectedTaskId) {
+          const selected = new Set([state.selectedTaskId]);
+          getAncestors(state.selectedTaskId, selected);
+          getDescendants(state.selectedTaskId, selected);
+          return selected;
+        }
+        if (state.criticalOnly) {
+          return new Set(criticalPath);
+        }
+        return new Set(tasks.map((task) => task.id));
+      }
+
+      function taskMatchesFilters(task) {
+        const query = state.search.trim().toLowerCase();
+        const phaseOk =
+          state.phaseFilter === "all" ||
+          task.phase === Number(state.phaseFilter);
+        if (!query) {
+          return phaseOk;
+        }
+        return (
+          phaseOk && `${task.id} ${task.title}`.toLowerCase().includes(query)
+        );
+      }
+
+      function renderPhaseFilters() {
+        const buttons = [
+          { id: "all", label: "All phases" },
+          ...phases.map((phase) => ({
+            id: String(phase.id),
+            label: phase.name,
+          })),
+        ];
+
+        phaseFilters.innerHTML = buttons
+          .map(
+            (button) => `
+              <button
+                type="button"
+                class="chip ${state.phaseFilter === button.id ? "is-active" : ""}"
+                data-phase-filter="${button.id}"
+                aria-pressed="${state.phaseFilter === button.id}"
+              >
+                ${button.label}
+              </button>
+            `,
+          )
+          .join("");
+      }
+
+      function buildBoard() {
+        if (!phases.length || !tasks.length) {
+          renderBoardMessage({
+            kicker: "No data",
+            title: "Task graph is empty",
+            body: "No phase or task documents were loaded, so the graph cannot be rendered.",
+          });
+          return;
+        }
+
+        const maxTasks = Math.max(
+          ...Array.from(phaseTaskMap.values(), (list) => list.length),
+        );
+        const boardWidth =
+          layout.boardPaddingX * 2 + phases.length * layout.columnWidth;
+        const boardHeight =
+          layout.boardPaddingTop + maxTasks * layout.rowHeight + 170;
+
+        graphBoard.style.width = `${boardWidth}px`;
+        graphBoard.style.height = `${boardHeight}px`;
+        edgeLayer.setAttribute("width", String(boardWidth));
+        edgeLayer.setAttribute("height", String(boardHeight));
+        edgeLayer.setAttribute("viewBox", `0 0 ${boardWidth} ${boardHeight}`);
+
+        phaseLayer.innerHTML = "";
+        taskLayer.innerHTML = "";
+        cardElements.clear();
+
+        phases.forEach((phase, phaseIndex) => {
+          const lane = document.createElement("section");
+          lane.className = "phase-lane";
+          lane.style.left = `${layout.boardPaddingX + phaseIndex * layout.columnWidth}px`;
+          lane.style.setProperty("--accent", phase.accent);
+          lane.innerHTML = `
+            <div class="phase-lane-header">
+              <div class="phase-pill">${phase.name}</div>
+              <h2 class="phase-title">${phase.title}</h2>
+              <p class="phase-summary">${phase.summary}</p>
+            </div>
+          `;
+          phaseLayer.appendChild(lane);
+        });
+
+        tasks.forEach((task) => {
+          const phase = getPhase(task);
+          const order = (phaseTaskMap.get(task.phase) || []).findIndex(
+            (item) => item.id === task.id,
+          );
+          const phaseIndex = phases.findIndex((item) => item.id === task.phase);
+          const x =
+            layout.boardPaddingX +
+            phaseIndex * layout.columnWidth +
+            (layout.laneWidth - layout.cardWidth) / 2;
+          const y =
+            layout.boardPaddingTop +
+            order * layout.rowHeight +
+            (phaseIndex % 2 === 0 ? 0 : 16);
+
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "task-card";
+          card.dataset.taskId = task.id;
+          card.style.left = `${x}px`;
+          card.style.top = `${y}px`;
+          card.style.setProperty("--accent", phase.accent);
+          card.innerHTML = `
+            <div class="task-card-header">
+              <span class="task-id">${task.id}</span>
+              <span class="task-number">${String(task.number).padStart(2, "0")}</span>
+            </div>
+            <h3 class="task-title">${task.title}</h3>
+            <p class="task-phase">${phase.name} / ${phase.title}</p>
+            <div class="task-footer">
+              <span class="mini-chip"><strong>${task.deps.length}</strong> deps</span>
+              <span class="mini-chip"><strong>${(dependentsMap.get(task.id) || []).length}</strong> unlocks</span>
+              ${
+                phaseEndpointSet.has(task.id)
+                  ? `<span class="mini-chip is-milestone">Phase endpoint</span>`
+                  : ""
+              }
+            </div>
+          `;
+
+          card.addEventListener("click", () => {
+            selectTask(task.id, true);
+          });
+
+          cardElements.set(task.id, card);
+          taskLayer.appendChild(card);
+        });
+      }
+
+      function describeSelection(task) {
+        const phase = getPhase(task);
+        const deps = task.deps;
+        const dependents = dependentsMap.get(task.id) || [];
+        const ordinal = `${task.order || task.number} / ${tasks.length}`;
+
+        const dependencyMarkup = deps.length
+          ? deps
+              .map(
+                (depId) => `
+                  <button type="button" class="sequence-button" data-target-task="${depId}">
+                    ${depId}
+                  </button>
+                `,
+              )
+              .join("")
+          : `<span class="footer-note">This is the root task.</span>`;
+
+        const unlockMarkup = dependents.length
+          ? dependents
+              .map(
+                (depId) => `
+                  <button type="button" class="sequence-button" data-target-task="${depId}">
+                    ${depId}
+                  </button>
+                `,
+              )
+              .join("")
+          : `<span class="footer-note">This task is currently an endpoint in the roadmap.</span>`;
+
+        detailsPanel.innerHTML = `
+          <div class="details-block">
+            <div class="details-kicker">${phase.name}</div>
+            <h2 class="details-title">${task.id}</h2>
+            <p class="details-copy"><strong>${task.title}</strong></p>
+            <p class="details-copy">
+              This task belongs to <strong>${phase.title}</strong>. It sits at position <strong>${ordinal}</strong> in the linear build order and acts as a bridge between its direct prerequisites and whatever work it unlocks next.
+            </p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Direct dependencies</div>
+              <div class="stat-value">${deps.length}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Direct unlocks</div>
+              <div class="stat-value">${dependents.length}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Phase</div>
+              <div class="stat-value">${phase.id}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Phase endpoint</div>
+              <div class="stat-value">${phaseEndpointSet.has(task.id) ? "Yes" : "No"}</div>
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Needs first</div>
+            <div class="sequence-row">${dependencyMarkup}</div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Unlocks next</div>
+            <div class="sequence-row">${unlockMarkup}</div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Source</div>
+            <div class="detail-links">
+              <a class="detail-link" href="../tasks/${task.file}" target="_blank" rel="noreferrer">Open task spec</a>
+              ${
+                task.source
+                  ? `
+                    <a class="detail-link" href="../${task.source}" target="_blank" rel="noreferrer">
+                      Open phase spec
+                    </a>
+                  `
+                  : ""
+              }
+              ${
+                finalTaskId
+                  ? `
+                    <button type="button" class="detail-link" data-target-task="${finalTaskId}">
+                      Jump to final GUI task
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
+          </div>
+
+          <p class="footer-note">
+            The view highlights the selected task, everything upstream that must exist first, and everything downstream that becomes possible after it.
+          </p>
+        `;
+      }
+
+      function describeOverview() {
+        detailsPanel.innerHTML = `
+          <div class="details-block">
+            <div class="details-kicker">Overview</div>
+            <h2 class="details-title">Roadmap shape</h2>
+            <p class="details-copy">
+              The graph spans the current documented build order for Loom: from architecture freeze, through the macOS MVP, into reusable layers, cross-platform backends, stronger isolation, and finally a GUI shell layered over the same orchestration core.
+            </p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Tasks</div>
+              <div class="stat-value">${tasks.length}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Dependency links</div>
+              <div class="stat-value">${edgeCount}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Phases</div>
+              <div class="stat-value">${phases.length}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Endpoints</div>
+              <div class="stat-value">${sinks.length}</div>
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Legend</div>
+            <div class="legend">
+              <span class="legend-item"><span class="legend-swatch" style="background: rgba(121, 201, 255, 0.8)"></span> selected prerequisites</span>
+              <span class="legend-item"><span class="legend-swatch" style="background: rgba(245, 201, 107, 0.82)"></span> selected downstream flow</span>
+              <span class="legend-item"><span class="legend-swatch" style="background: rgba(245, 201, 107, 0.42)"></span> critical path highlight</span>
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Critical path</div>
+            <div class="sequence-row">
+              ${criticalPath
+                .map(
+                  (taskId) => `
+                    <button type="button" class="sequence-button" data-target-task="${taskId}">
+                      ${taskId}
+                    </button>
+                  `,
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Phase endpoints</div>
+            <div class="detail-links">
+              ${phaseEndpointIds
+                .map(
+                  (taskId) => `
+                    <button type="button" class="detail-link" data-target-task="${taskId}">
+                      ${taskId}
+                    </button>
+                  `,
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="details-kicker">Phase map</div>
+            <div class="phase-list">
+              ${phases
+                .map(
+                  (phase) => `
+                    <div class="phase-card">
+                      <strong>${phase.name}</strong>
+                      <span>${phase.title}<br />${phase.summary}</span>
+                    </div>
+                  `,
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <p class="footer-note">
+            Data source: parsed at runtime from <code>tasks/README.md</code>, <code>specs/README.md</code>, the phase docs, and YAML front matter in the local <code>TASK-*.md</code> files.
+          </p>
+        `;
+      }
+
+      function updateDetails() {
+        if (!state.selectedTaskId || !taskMap.has(state.selectedTaskId)) {
+          describeOverview();
+          return;
+        }
+        describeSelection(taskMap.get(state.selectedTaskId));
+      }
+
+      function updateCards() {
+        const highlighted = getVisibleRelationshipSet();
+        const ancestors = state.selectedTaskId
+          ? getAncestors(state.selectedTaskId)
+          : new Set();
+        const descendants = state.selectedTaskId
+          ? getDescendants(state.selectedTaskId)
+          : new Set();
+
+        tasks.forEach((task) => {
+          const card = cardElements.get(task.id);
+          if (!card) {
+            return;
+          }
+
+          const matches = taskMatchesFilters(task);
+          const protectedBySelection =
+            state.selectedTaskId &&
+            (task.id === state.selectedTaskId ||
+              ancestors.has(task.id) ||
+              descendants.has(task.id));
+          const visibleByMode = highlighted.has(task.id);
+          const dim = protectedBySelection
+            ? false
+            : !(matches && visibleByMode);
+
+          card.classList.toggle(
+            "is-selected",
+            task.id === state.selectedTaskId,
+          );
+          card.classList.toggle("is-ancestor", ancestors.has(task.id));
+          card.classList.toggle("is-descendant", descendants.has(task.id));
+          card.classList.toggle(
+            "is-critical",
+            state.criticalOnly && criticalSet.has(task.id),
+          );
+          card.classList.toggle("is-dim", dim);
+        });
+      }
+
+      function makePath(fromCard, toCard, samePhase) {
+        const fromX = fromCard.offsetLeft;
+        const fromY = fromCard.offsetTop;
+        const fromW = fromCard.offsetWidth;
+        const fromH = fromCard.offsetHeight;
+        const toX = toCard.offsetLeft;
+        const toY = toCard.offsetTop;
+        const toW = toCard.offsetWidth;
+        const toH = toCard.offsetHeight;
+
+        if (samePhase) {
+          const startX = fromX + fromW / 2;
+          const startY = fromY + fromH;
+          const endX = toX + toW / 2;
+          const endY = toY;
+          const bend = Math.max(40, (endY - startY) * 0.4);
+          return `M ${startX} ${startY} C ${startX} ${startY + bend} ${endX} ${endY - bend} ${endX} ${endY}`;
+        }
+
+        const startX = fromX + fromW;
+        const startY = fromY + fromH / 2;
+        const endX = toX;
+        const endY = toY + toH / 2;
+        const spread = Math.max(60, (endX - startX) * 0.45);
+        return `M ${startX} ${startY} C ${startX + spread} ${startY} ${endX - spread} ${endY} ${endX} ${endY}`;
+      }
+
+      function drawEdges() {
+        if (!tasks.length) {
+          return;
+        }
+
+        const highlighted = getVisibleRelationshipSet();
+        const ancestors = state.selectedTaskId
+          ? getAncestors(state.selectedTaskId)
+          : new Set();
+        const descendants = state.selectedTaskId
+          ? getDescendants(state.selectedTaskId)
+          : new Set();
+
+        edgeLayer.innerHTML = "";
+
+        tasks.forEach((task) => {
+          task.deps.forEach((depId) => {
+            const fromCard = cardElements.get(depId);
+            const toCard = cardElements.get(task.id);
+            if (!fromCard || !toCard || !taskMap.has(depId)) {
+              return;
+            }
+
+            const edge = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "path",
+            );
+            edge.setAttribute(
+              "d",
+              makePath(
+                fromCard,
+                toCard,
+                taskMap.get(depId).phase === task.phase,
+              ),
+            );
+            edge.classList.add("edge-path");
+
+            const protectedBySelection =
+              state.selectedTaskId &&
+              highlighted.has(depId) &&
+              highlighted.has(task.id) &&
+              (depId === state.selectedTaskId ||
+                task.id === state.selectedTaskId ||
+                ancestors.has(depId) ||
+                descendants.has(task.id) ||
+                ancestors.has(task.id) ||
+                descendants.has(depId));
+
+            const passesFilter =
+              taskMatchesFilters(taskMap.get(depId)) &&
+              taskMatchesFilters(task);
+            const visibleByMode =
+              highlighted.has(depId) && highlighted.has(task.id);
+
+            if (
+              state.selectedTaskId &&
+              task.id === state.selectedTaskId &&
+              ancestors.has(depId)
+            ) {
+              edge.classList.add("is-upstream");
+            } else if (
+              state.selectedTaskId &&
+              depId === state.selectedTaskId &&
+              descendants.has(task.id)
+            ) {
+              edge.classList.add("is-downstream");
+            } else if (state.selectedTaskId && protectedBySelection) {
+              edge.classList.add("is-related");
+            } else if (
+              !state.selectedTaskId &&
+              state.criticalOnly &&
+              criticalEdgeSet.has(`${depId}->${task.id}`)
+            ) {
+              edge.classList.add("is-critical");
+            } else if (!(passesFilter && visibleByMode)) {
+              edge.classList.add("is-dim");
+            }
+
+            if (state.selectedTaskId && !protectedBySelection) {
+              edge.classList.add("is-dim");
+            }
+
+            edgeLayer.appendChild(edge);
+          });
+        });
+      }
+
+      function updateHash(taskId) {
+        const url = new URL(window.location.href);
+        url.hash = taskId ? taskId.toLowerCase() : "";
+        window.history.replaceState(null, "", url);
+      }
+
+      function selectTask(taskId, shouldScroll = false) {
+        if (!taskMap.has(taskId)) {
+          return;
+        }
+
+        state.selectedTaskId = state.selectedTaskId === taskId ? null : taskId;
+        updateHash(state.selectedTaskId);
+        updateView();
+
+        if (shouldScroll && state.selectedTaskId) {
+          const card = cardElements.get(state.selectedTaskId);
+          if (card) {
+            card.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center",
+            });
+          }
+        }
+      }
+
+      function updateView() {
+        if (!tasks.length) {
+          return;
+        }
+
+        renderPhaseFilters();
+        updateCards();
+        drawEdges();
+        updateDetails();
+        criticalToggle.classList.toggle("is-active", state.criticalOnly);
+        criticalToggle.setAttribute("aria-pressed", String(state.criticalOnly));
+      }
+
+      async function initializeGraph({ source = "http" } = {}) {
+        renderLoadingState();
+        setControlsDisabled(true);
+
+        try {
+          const graphData =
+            source === "picker"
+              ? await loadFromDirectoryPicker()
+              : await loadFromHttp();
+
+          rebuildGraphState(graphData.phases, graphData.tasks);
+          buildBoard();
+
+          const hashMatch = normalizeTaskId(window.location.hash);
+          state.selectedTaskId = taskMap.has(hashMatch) ? hashMatch : null;
+
+          setControlsDisabled(false);
+          updateView();
+        } catch (error) {
+          console.error("[task-tree] Failed to load graph data:", error);
+          setControlsDisabled(false);
+          renderLoadError(error);
+        }
+      }
+
+      phaseFilters.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-phase-filter]");
+        if (!button || !tasks.length) {
+          return;
+        }
+        state.phaseFilter = button.dataset.phaseFilter;
+        updateView();
+      });
+
+      phaseLayer.addEventListener("click", async (event) => {
+        const actionTarget = event.target.closest("[data-action]");
+        if (!actionTarget) {
+          return;
+        }
+
+        if (actionTarget.dataset.action === "retry-load") {
+          await initializeGraph();
+        }
+
+        if (actionTarget.dataset.action === "pick-folder") {
+          await initializeGraph({ source: "picker" });
+        }
+      });
+
+      searchInput.addEventListener("input", (event) => {
+        state.search = event.target.value;
+        updateView();
+      });
+
+      criticalToggle.addEventListener("click", () => {
+        if (!tasks.length) {
+          return;
+        }
+        state.criticalOnly = !state.criticalOnly;
+        updateView();
+      });
+
+      resetButton.addEventListener("click", () => {
+        state.search = "";
+        state.phaseFilter = "all";
+        state.selectedTaskId = null;
+        state.criticalOnly = false;
+        searchInput.value = "";
+        updateHash(null);
+        updateView();
+      });
+
+      detailsPanel.addEventListener("click", (event) => {
+        const target = event.target.closest("[data-target-task]");
+        if (!target) {
+          return;
+        }
+        selectTask(target.dataset.targetTask, true);
+      });
+
+      window.addEventListener("resize", () => {
+        drawEdges();
+      });
+
+      initializeGraph();
+    </script>
+  </body>
+</html>
