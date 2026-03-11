@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const defaultEntryPath = "/task-tree/";
+const defaultDocsPath = "specs";
 const defaultHost = process.env.HOST || "127.0.0.1";
 const defaultPort = Number.parseInt(process.env.PORT || "", 10) || 4173;
 const maxPortAttempts = 20;
@@ -36,6 +37,7 @@ Usage:
 Options:
   --host <host>   Bind host, defaults to 127.0.0.1
   --port <port>   Bind port, defaults to 4173
+  --docs <path>   Docs root (specs dir) for task/spec files, defaults to specs
   --open          Open the task tree page in the default browser
   --entry <path>  Entry path to open, defaults to /task-tree/
   --help          Show this help message
@@ -44,6 +46,7 @@ Options:
 
 function parseArgs(argv) {
   const options = {
+    docsPath: defaultDocsPath,
     entryPath: defaultEntryPath,
     host: defaultHost,
     open: false,
@@ -98,6 +101,17 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--docs") {
+      options.docsPath = argv[index + 1] || options.docsPath;
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--docs=")) {
+      options.docsPath = arg.slice("--docs=".length) || options.docsPath;
+      continue;
+    }
+
     if (arg === "--entry") {
       options.entryPath = argv[index + 1] || options.entryPath;
       index += 1;
@@ -148,6 +162,17 @@ function sendText(response, statusCode, body, headers = {}) {
   response.end(body);
 }
 
+function sendJson(response, statusCode, data, headers = {}) {
+  const body = JSON.stringify(data);
+  response.writeHead(statusCode, {
+    "Cache-Control": "no-store",
+    "Content-Type": "application/json; charset=utf-8",
+    "X-Content-Type-Options": "nosniff",
+    ...headers,
+  });
+  response.end(body);
+}
+
 async function handleRequest(request, response, options) {
   const method = request.method || "GET";
   if (method !== "GET" && method !== "HEAD") {
@@ -172,6 +197,13 @@ async function handleRequest(request, response, options) {
   if (requestUrl.pathname === "/favicon.ico") {
     response.writeHead(204, { "Cache-Control": "no-store" });
     response.end();
+    return;
+  }
+
+  const configPath =
+    (options.entryPath.replace(/\/$/, "") || "/task-tree") + "/config.json";
+  if (requestUrl.pathname === configPath) {
+    sendJson(response, 200, { docsPath: options.docsPath });
     return;
   }
 

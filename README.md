@@ -137,31 +137,31 @@ The first daily-usable milestone is the end of `Phase 1`, where a user should be
 
 This repository currently contains the planning and execution documents for that roadmap:
 
-- `plan.md`: the canonical high-level architecture and product plan
+- `specs/plan.md`: the canonical high-level architecture and product plan
 - `specs/README.md`: the linear phase order and phase guardrails
 - `specs/phase-*.md`: phase-by-phase specifications
-- `tasks/README.md`: implementation-oriented task guidance
-- `tasks/TASK-*.md`: detailed task breakdowns and acceptance criteria
+- `specs/tasks/README.md`: implementation-oriented task guidance
+- `specs/tasks/TASK-*.md`: detailed task breakdowns and acceptance criteria
 - `.cursor/rules/markdown.mdc`: Markdown authoring rules for this repository
 
-Some task and spec documents still mention `plan.md`. In this repository, that file is `plan.md`.
+Some task and spec documents still mention `plan.md`. In this repository, that file is `specs/plan.md`.
 
 ## Start Here
 
 If you want the shortest path into the project, start with:
 
-- `plan.md`
+- `specs/plan.md`
 - `specs/phase-0-architecture-skeleton.md`
-- `tasks/TASK-1-freeze-scope-and-write-architectural-adrs.md`
+- `specs/tasks/TASK-1-freeze-scope-and-write-architectural-adrs.md`
 
 ## Suggested Reading Order
 
 If you are new to the project, read in this order:
 
-- `plan.md`
+- `specs/plan.md`
 - `specs/README.md`
 - the relevant `specs/phase-*.md` file
-- the matching `tasks/TASK-*.md` documents
+- the matching `specs/tasks/TASK-*.md` documents
 
 If you are implementing work, follow the task order unless a task document explicitly states that parallel work is safe.
 

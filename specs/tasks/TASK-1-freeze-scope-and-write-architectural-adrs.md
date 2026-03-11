@@ -25,10 +25,10 @@ Depends on: none
 
 ## Suggested outputs
 
-- `docs/adr/0001-product-scope.md`
-- `docs/adr/0002-subsystem-boundaries.md`
-- `docs/adr/0003-platform-strategy.md`
-- `docs/adr/0004-early-phase-non-goals.md`
+- `docs/adr/ADR-1-product-scope.md`
+- `docs/adr/ADR-2-subsystem-boundaries.md`
+- `docs/adr/ADR-3-platform-strategy.md`
+- `docs/adr/ADR-4-early-phase-non-goals.md`
 
 ## Implementation steps
 

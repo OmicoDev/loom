@@ -1,6 +1,6 @@
 # Loom Linear Specs
 
-This directory rewrites `plan.md` into a build order that can be executed from top to bottom.
+This directory rewrites `plan.md` (in this directory) into a build order that can be executed from top to bottom.
 
 ## How to use this folder
 

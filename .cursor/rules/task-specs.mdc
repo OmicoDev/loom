@@ -1,6 +1,6 @@
 ---
 description: Task spec structure for implementation-oriented task files
-globs: tasks/TASK-*.md
+globs: specs/tasks/TASK-*.md
 alwaysApply: false
 ---
 

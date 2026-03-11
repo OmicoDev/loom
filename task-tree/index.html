@@ -977,6 +977,7 @@
         [6, "var(--phase-6)"],
       ]);
 
+      let docsPath = "specs";
       let phases = [];
       let tasks = [];
       let taskMap = new Map();
@@ -1160,7 +1161,7 @@
         renderBoardMessage({
           kicker: "Data source",
           title: "Loading local task files",
-          body: "Reading <code>tasks/README.md</code> and <code>specs/README.md</code> for graph shape, then parsing YAML front matter from every local <code>TASK-*.md</code> file.",
+          body: "Reading the docs README and task list for graph shape, then parsing YAML front matter from every local <code>TASK-*.md</code> file.",
           extra:
             "If the page is opened from <code>file://</code>, browser security may block automatic file reads. In that case, use a local HTTP server or choose the repository folder when prompted.",
         });
@@ -1182,7 +1183,7 @@
         const isFileProtocol = window.location.protocol === "file:";
         const errorCopy = isFileProtocol
           ? "Automatic reads are blocked when the page is opened directly from the filesystem. Serve the repo over HTTP or grant folder access to let the page parse the local Markdown files."
-          : "The graph could not read one or more Markdown files. Check that the page is still inside the repo and that the expected <code>tasks</code> and <code>specs</code> files exist.";
+          : "The graph could not read one or more Markdown files. Check that the page is still inside the repo and that the docs path (e.g. <code>specs/</code> and <code>specs/tasks/</code>) exists.";
 
         const actions = [{ id: "retry-load", label: "Retry load" }];
         if (supportsDirectoryPicker) {
@@ -1322,7 +1323,7 @@
           id,
           name: `Phase ${id}`,
           title,
-          file: `specs/${file}`,
+          file: `${docsPath}/${file}`,
           accent: phaseAccentMap.get(id) || `var(--phase-${id})`,
           summary,
         };
@@ -1413,7 +1414,7 @@
         }
         if (missingFromSpecs.length) {
           throw new Error(
-            `Task docs not present in specs/README.md: ${missingFromSpecs.join(", ")}.`,
+            `Task docs not present in docs linear list: ${missingFromSpecs.join(", ")}.`,
           );
         }
         if (missingPhases.length) {
@@ -1473,8 +1474,8 @@
 
       async function loadFromHttp() {
         const [specsReadme, tasksReadme] = await Promise.all([
-          fetchText("../specs/README.md"),
-          fetchText("../tasks/README.md"),
+          fetchText(`../${docsPath}/README.md`),
+          fetchText(`../${docsPath}/tasks/README.md`),
         ]);
 
         const phaseFiles = parsePhaseFiles(specsReadme);
@@ -1482,21 +1483,21 @@
         const phaseRows = parseSpecsTaskTable(specsReadme);
 
         if (!phaseFiles.length) {
-          throw new Error("No phase files were found in specs/README.md.");
+          throw new Error(`No phase files were found in ${docsPath}/README.md.`);
         }
         if (!taskFiles.length) {
-          throw new Error("No task files were found in tasks/README.md.");
+          throw new Error(`No task files were found in ${docsPath}/tasks/README.md.`);
         }
 
         const [phaseDocs, taskDocs] = await Promise.all([
           Promise.all(
             phaseFiles.map(async (file) =>
-              parsePhaseDoc(file, await fetchText(`../specs/${file}`)),
+              parsePhaseDoc(file, await fetchText(`../${docsPath}/${file}`)),
             ),
           ),
           Promise.all(
             taskFiles.map(async (file) =>
-              parseTaskDoc(file, await fetchText(`../tasks/${file}`)),
+              parseTaskDoc(file, await fetchText(`../${docsPath}/tasks/${file}`)),
             ),
           ),
         ]);
@@ -1513,8 +1514,8 @@
           id: "loom-task-tree",
           mode: "read",
         });
-        const tasksHandle = await repoHandle.getDirectoryHandle("tasks");
-        const specsHandle = await repoHandle.getDirectoryHandle("specs");
+        const specsHandle = await repoHandle.getDirectoryHandle(docsPath);
+        const tasksHandle = await specsHandle.getDirectoryHandle("tasks");
 
         const [specsReadme, tasksReadme] = await Promise.all([
           readTextFromDirectory(specsHandle, "README.md"),
@@ -1902,7 +1903,7 @@
           <div class="details-block">
             <div class="details-kicker">Source</div>
             <div class="detail-links">
-              <a class="detail-link" href="../tasks/${task.file}" target="_blank" rel="noreferrer">Open task spec</a>
+              <a class="detail-link" href="../${docsPath}/tasks/${task.file}" target="_blank" rel="noreferrer">Open task spec</a>
               ${
                 task.source
                   ? `
@@ -2015,7 +2016,7 @@
           </div>
 
           <p class="footer-note">
-            Data source: parsed at runtime from <code>tasks/README.md</code>, <code>specs/README.md</code>, the phase docs, and YAML front matter in the local <code>TASK-*.md</code> files.
+            Data source: parsed at runtime from the docs README, phase files, task list, and YAML front matter in the local <code>TASK-*.md</code> files.
           </p>
         `;
       }
@@ -2227,6 +2228,18 @@
         setControlsDisabled(true);
 
         try {
+          if (source === "http") {
+            try {
+              const configRes = await fetch("config.json", { cache: "no-store" });
+              if (configRes.ok) {
+                const data = await configRes.json();
+                if (data.docsPath) docsPath = data.docsPath;
+              }
+            } catch {
+              // keep default docsPath
+            }
+          }
+
           const graphData =
             source === "picker"
               ? await loadFromDirectoryPicker()

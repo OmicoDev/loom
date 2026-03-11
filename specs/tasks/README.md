@@ -5,7 +5,7 @@ This directory expands each task from `specs/` into an implementation-oriented d
 ## How to use
 
 - Read `specs/README.md` first to understand the global phase order.
-- Read the matching `tasks/TASK-*.md` file before implementing a task.
+- Read the matching `TASK-*.md` file in this directory before implementing a task.
 - Finish tasks in numeric order unless a task document explicitly says parallel work is safe.
 - Treat these documents as Rust implementation guides, not as permission to change the product scope.
 
